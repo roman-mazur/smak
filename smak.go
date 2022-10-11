@@ -1,3 +1,5 @@
+// Command smak can be used to visualize a state machine implemented using the state function approach.
+// See https://www.youtube.com/watch?v=HxaD_trXwRE
 package main
 
 import (
@@ -10,7 +12,7 @@ import (
 
 var (
 	stateFn = flag.String("state-fn", "stateFn", "State function type name")
-	out     = flag.String("out", "matrix", "Type of the output")
+	out     = flag.String("out", "edges", "Type of the output")
 )
 
 func main() {
