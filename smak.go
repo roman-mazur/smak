@@ -98,6 +98,10 @@ func edges(b *builder) []edge {
 
 func transitionNames(b *builder, node *ast.ReturnStmt) []string {
 	var dst []string
+	if len(node.Results) < 1 {
+		// Not a real transition function, could be an helper func.
+		return dst
+	}
 	switch tr := node.Results[0].(type) {
 	case *ast.Ident:
 		dst = []string{tr.Name}
