@@ -22,7 +22,7 @@ func parse(p string) (*ast.File, error) {
 		return parseFile(fset, p)
 	}
 	pkgs, err := parser.ParseDir(fset, p, func(info fs.FileInfo) bool {
-		return filepath.Ext(info.Name()) == ".go" && !strings.HasSuffix(info.Name(), "_test.go")
+		return filepath.Ext(info.Name()) == ".go" && (*parseTests || !strings.HasSuffix(info.Name(), "_test.go"))
 	}, 0)
 	if err != nil {
 		return nil, err

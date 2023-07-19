@@ -7,23 +7,30 @@ import (
 	"go/ast"
 	"log"
 	"os"
+	"path/filepath"
 	"reflect"
 )
 
 var (
-	stateFn = flag.String("state-fn", "stateFn", "State function type name")
-	out     = flag.String("out", "edges", "Type of the output")
+	stateFn    = flag.String("state-fn", "stateFn", "State function type name")
+	machine    = flag.String("machine", "", "Machine name to filter")
+	parseTests = flag.Bool("tests", false, "Whether to parse test files")
+	out        = flag.String("out", "edges", "Type of the output")
 )
 
 func main() {
 	flag.Parse()
 
-	fileName := flag.Arg(0)
-	if fileName == "" {
+	pkgPath := flag.Arg(0)
+	if pkgPath == "" {
 		log.Fatal("Input path is required")
 	}
+	pkgAbsPath, err := filepath.Abs(pkgPath)
+	if err != nil {
+		log.Fatal("Cannot resolve input path: ", err)
+	}
 
-	fnode, err := parse(fileName)
+	fnode, err := parse(pkgAbsPath)
 	if err != nil {
 		log.Fatal("Failed to parse the input file: ", err)
 	}

@@ -5,24 +5,43 @@ import (
 	"go/token"
 	"log"
 	"reflect"
+	"strings"
 )
 
 func stateMatch(fd *ast.FuncDecl) bool {
+	if fd.Type.Results == nil {
+		return false
+	}
 	formOk := fd.Name.Name != "" && fd.Recv == nil && len(fd.Type.Params.List) == 1 && len(fd.Type.Results.List) == 1
 	if !formOk {
 		return false
 	}
-	return helperMatch(fd)
+	res := helperMatch(fd)
+	if res && *machine != "" {
+		switch t := fd.Type.Params.List[0].Type.(type) {
+		case *ast.Ident:
+			return strings.Contains(t.Name, *machine)
+		case *ast.StarExpr:
+			return strings.Contains(t.X.(*ast.Ident).Name, *machine)
+		default:
+			return false
+		}
+	}
+	return res
 }
 
 func helperMatch(fd *ast.FuncDecl) bool {
 	if fd.Type.Results == nil || len(fd.Type.Results.List) != 1 {
 		return false
 	}
-	if rt, ok := fd.Type.Results.List[0].Type.(*ast.Ident); ok {
+	switch rt := fd.Type.Results.List[0].Type.(type) {
+	case *ast.Ident: // Simple type.
 		return rt.Name == *stateFn
+	case *ast.IndexExpr: // Parameterized type.
+		return rt.X.(*ast.Ident).Name == *stateFn
+	default:
+		return false
 	}
-	return false
 }
 
 type builder struct {
